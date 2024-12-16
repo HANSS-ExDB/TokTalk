@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URISyntaxException;
 import java.net.InetAddress;
 import java.util.Vector;
 import java.util.Random;
@@ -12,6 +13,7 @@ import javax.swing.*;
 
 public class TokTalkServer extends JFrame {
 	private final static String localhost_txt = "localhost.txt";
+	private static String ServerIP = getServerIP(localhost_txt); 
     private int mainServerPort = 1025; // 메인 서버의 포트 번호
     private int[] ports; // 사용할 포트 번호 배열
     private Vector<ChatRoom> chatRooms = new Vector<>(); // 채팅방 목록
@@ -124,7 +126,7 @@ public class TokTalkServer extends JFrame {
         t_display.setCaretPosition(t_display.getDocument().getLength());
     }
 
-    private String getServerIP(String filePath) {
+    private static String getServerIP(String filePath) {
     	String ip = null;
     	try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             ip = reader.readLine(); // 첫 줄 읽기
@@ -152,9 +154,7 @@ public class TokTalkServer extends JFrame {
         @Override
         public void run() {
             try {
-            	String serverIP = getServerIP(localhost_txt);
-            	
-            	serverSocket = new ServerSocket(port, 0, InetAddress.getByName(serverIP));
+            	serverSocket = new ServerSocket(port, 0, InetAddress.getByName(ServerIP));
             	
                 String serverAddress = serverSocket.getInetAddress().getHostAddress();
 
@@ -390,6 +390,15 @@ public class TokTalkServer extends JFrame {
 
     
     public static void main(String[] args) {
-        new TokTalkServer(); // 메인 서버 시작
+        String currentDir = System.getProperty("user.dir");
+        File file = new File(currentDir, "localhost.txt");
+        String IP = getServerIP(file.getPath());
+        if (IP != null) {
+            ServerIP = IP;
+        }
+
+        // 메인 서버 시작
+        new TokTalkServer();
     }
+
 }

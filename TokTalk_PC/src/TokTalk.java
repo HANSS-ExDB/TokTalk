@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,9 +15,10 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 
 public class TokTalk extends JFrame {
-	private final static String localhost_txt = "localhost.txt"; 
+	private static String localhost_txt = "localhost.txt"; 
     private static String Address = getServerIP(localhost_txt); //IP주소를 localhost.txt에서 받아옴
     private static int Port = 1025; // 기본값을 메인 서버의 포트 번호로 설정
+    private final String LOGO = "/images/kakao.png"; // 클래스패스 기준 경로
     
     private Socket socket;
     private ObjectOutputStream out;
@@ -42,6 +44,7 @@ public class TokTalk extends JFrame {
 
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
+        if (serverAddress != null)this.Address = serverAddress;
 
         startGUI(); // 초기 화면 GUI 생성
 
@@ -68,15 +71,23 @@ public class TokTalk extends JFrame {
     }
     private JPanel startPanel() {
         JPanel p = new JPanel(new FlowLayout());
-        p.setBackground(new Color(250,225,0));
+        p.setBackground(new Color(250, 225, 0));
 
-        tok = new ImageIcon("images/kakao2.png");
+        // 클래스패스에서 이미지 로드
+        URL imageUrl = getClass().getResource(LOGO);
+        System.out.println("이미지 URL: " + imageUrl);
+
+        if (imageUrl == null) {
+            throw new IllegalArgumentException("이미지를 찾을 수 없습니다: " + LOGO);
+        }
+        tok = new ImageIcon(imageUrl);
         Tok = new JLabel(tok);
 
         p.add(Tok);
-
         return p;
     }
+
+
     private JPanel createInfoPanel() {
         JPanel p = new JPanel(new FlowLayout());
         p.setBackground(new Color(250,225,0));
@@ -487,9 +498,17 @@ public class TokTalk extends JFrame {
     }
 
     public static void main(String[] args) {
-        String serverAddress = Address;
+        String serverAddress;
         int serverPort = 54321;
+
+        // JAR 파일 실행 디렉토리에서 localhost.txt 읽기
+        String currentDir = System.getProperty("user.dir");
+        File file = new File(currentDir, "localhost.txt");
+
+        // localhost.txt 파일에서 IP 읽기
+        serverAddress = getServerIP(file.getPath());
 
         new TokTalk(serverAddress, serverPort);
     }
+
 }

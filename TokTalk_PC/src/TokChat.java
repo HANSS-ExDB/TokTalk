@@ -11,10 +11,11 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 public class TokChat extends JFrame {
+	
+	private String EMO_SEND = "/images/emoticon.jpg";
+	private String FILE_SEND = "/images/filesend.jpg";
+	private String MSG_SEND = "/images/send.jpg";
 
-    private String EMO_SEND = "images/emoticon.jpg";
-    private String FILE_SEND = "images/filesend.jpg";
-    private String MSG_SEND = "images/send.jpg";
 
     private String serverAddress;
     private int serverPort;
@@ -78,8 +79,12 @@ public class TokChat extends JFrame {
         add(p_input, BorderLayout.SOUTH);
     }
 
-    private JButton createSquareButton(String text) {
-        JButton button = new JButton(new ImageIcon(text));
+    private JButton createSquareButton(String resourcePath) {
+        URL resourceUrl = getClass().getResource(resourcePath);
+        if (resourceUrl == null) {
+            throw new IllegalArgumentException("리소스를 찾을 수 없습니다: " + resourcePath);
+        }
+        JButton button = new JButton(new ImageIcon(resourceUrl));
         int size = 40; // 버튼 크기 (정사각형)
         Dimension dimension = new Dimension(size, size);
         button.setPreferredSize(dimension);
@@ -87,6 +92,7 @@ public class TokChat extends JFrame {
         button.setMaximumSize(dimension);
         return button;
     }
+
 
     private JPanel createDisplayPanel() {
         JPanel p = new JPanel(new BorderLayout());
@@ -356,11 +362,20 @@ public class TokChat extends JFrame {
         t_input.setText("");
     }
 
-    public void sendImoticon(String filename) {
-        File file = new File(filename);
-        ImageIcon icon = new ImageIcon(filename);
+    public void sendImoticon(String resourcePath) {
+        // JAR 파일 및 디버그 환경에서 이미지 로드
+        URL resourceUrl = getClass().getResource(resourcePath);
+        if (resourceUrl == null) {
+            throw new IllegalArgumentException("리소스를 찾을 수 없습니다: " + resourcePath);
+        }
+
+        // ImageIcon 생성
+        ImageIcon icon = new ImageIcon(resourceUrl);
+
+        // ChatMsg 객체 생성 및 전송
         send(new ChatMsg(uid, ChatMsg.MODE_TX_IMAGE, "", icon));
     }
+
 
     public static void main(String[] args) {
         String serverAddress = "localhost";
