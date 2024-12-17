@@ -56,8 +56,17 @@ public class ImoticonSelect extends JFrame {
     }
 
     private JButton addButton(String resourcePath) {
-        String path = getImagePath(resourcePath);
-        JButton button = new JButton(new ImageIcon(path));
+        JButton button = new JButton();
+        URL imageUrl = getClass().getResource(resourcePath);
+
+        if (imageUrl != null) {
+            button.setIcon(new ImageIcon(imageUrl)); // URL 객체를 직접 사용
+            System.out.println("이미지 생성: " + imageUrl);
+        } else {
+            System.out.println("이미지 없음: " + resourcePath); 
+            button.setText("No Image"); // 이미지가 없을 경우 기본 텍스트 설정
+        }
+
         button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setVerticalAlignment(SwingConstants.CENTER);
         button.setText(null);
@@ -68,6 +77,7 @@ public class ImoticonSelect extends JFrame {
         });
         return button;
     }
+
 
     private void setLocationRelativeToParent(JFrame parent) {
         if (parent != null) {
@@ -83,12 +93,12 @@ public class ImoticonSelect extends JFrame {
     }
     
     private String getImagePath(String resourcePath) {
-        // JAR 실행 환경 (클래스패스에서 리소스 읽기)
-        if (getClass().getResource(resourcePath) != null) {
-            return getClass().getResource(resourcePath).toExternalForm(); // URL 형식 반환
+        URL url = getClass().getResource(resourcePath);
+        if (url != null) {
+            return url.toString(); 
         }
-        // 디버그 실행 환경 (소스 디렉토리에서 파일 경로로 읽기)
-        return "src" + resourcePath; // 예: "src/images/Mokoko.jpg"
+        System.err.println("Resource not found: " + resourcePath);
+        return null;
     }
 
 }
